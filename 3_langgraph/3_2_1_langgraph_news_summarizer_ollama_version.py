@@ -1,4 +1,4 @@
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
 import os, requests
@@ -20,7 +20,13 @@ class AgentState(TypedDict):
 # Setup
 # --------------------------
 load_dotenv(override=True)
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
+
+# Use local Ollama model
+llm = ChatOllama(
+    model="llama3.2",     
+    temperature=0.3
+)
+
 news_key = os.getenv("NEWS_API_KEY")
 
 # --------------------------
@@ -33,6 +39,7 @@ def fetch_news(state: AgentState) -> AgentState:
         r = requests.get(url)
         articles = [a["title"] for a in r.json().get("articles", [])]
         headlines = "\n".join(articles)
+        print(f"Headlines: {headlines}") # For debugging
     except Exception as e:
         headlines = f"Error fetching news: {e}"
     return {"headlines": headlines}
